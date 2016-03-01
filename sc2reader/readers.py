@@ -330,6 +330,9 @@ class GameEventsReader_Base(object):
         byte_align = data.byte_align
         append = game_events.append
 
+        replay.inject_diagnostics = []
+        ifilter = lambda e: e.name == "TargetAbilityEvent"
+
         try:
             fstamp = 0
             event_start = 0
@@ -343,10 +346,26 @@ class GameEventsReader_Base(object):
                     event_data = event_parser(data)
                     if event_class is not None:
                         event = event_class(fstamp, pid, event_data)
+
+                        replay.inject_diagnostics.append({
+                            'fstamp': fstamp,
+                            'event_data': event_data,
+                            'event': event,
+                            'is_inject': ifilter(event),
+                            'is_unused': False,
+                            'bytes': data.read_range(event_start, tell())
+                        })
+
                         append(event)
                         if debug:
                             event.bytes = data.read_range(event_start, tell())
                     else:
+                        replay.inject_diagnostics.append({
+                            'fstamp': fstamp,
+                            'is_inject': False,
+                            'is_unused': True,
+                            'bytes': data.read_range(event_start, tell())
+                        })
                         pass  # Skipping unused events
 
                 # Otherwise throw a read error
@@ -1837,7 +1856,6 @@ class GameEventsReader_38749(GameEventsReader_38215):
 class GameEventsReader_38996(GameEventsReader_38749):
 
     def trigger_ping_event(self, data):
-        print('yo')
         return dict(
             point=dict(
                 x=data.read_uint32() - 2147483648,

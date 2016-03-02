@@ -199,20 +199,20 @@ class GameEngine(object):
 
     def _get_plugin_event_handlers(self, plugin, event):
         handlers = list()
-        if isinstance(event, Event) and self._has_event_handler(plugin, Event):
-            handlers.append(self._get_event_handler(plugin, Event))
-        if isinstance(event, MessageEvent) and self._has_event_handler(plugin, MessageEvent):
-            handlers.append(self._get_event_handler(plugin, MessageEvent))
-        if isinstance(event, GameEvent) and self._has_event_handler(plugin, GameEvent):
-            handlers.append(self._get_event_handler(plugin, GameEvent))
-        if isinstance(event, TrackerEvent) and self._has_event_handler(plugin, TrackerEvent):
-            handlers.append(self._get_event_handler(plugin, TrackerEvent))
-        if isinstance(event, PlayerActionEvent) and self._has_event_handler(plugin, PlayerActionEvent):
-            handlers.append(self._get_event_handler(plugin, PlayerActionEvent))
-        if isinstance(event, AbilityEvent) and self._has_event_handler(plugin, AbilityEvent):
-            handlers.append(self._get_event_handler(plugin, AbilityEvent))
-        if isinstance(event, HotkeyEvent) and self._has_event_handler(plugin, HotkeyEvent):
-            handlers.append(self._get_event_handler(plugin, HotkeyEvent))
+        types = [
+                    Event,
+                    MessageEvent,
+                    GameEvent,
+                    TrackerEvent,
+                    PlayerActionEvent,
+                    AbilityEvent,
+                    CommandUpdateTargetUnitEvent,
+                    HotkeyEvent
+                ]
+
+        for event_type in types:
+            if isinstance(event, event_type) and self._has_event_handler(plugin, event_type):
+                handlers.append(self._get_event_handler(plugin, event_type))
         if self._has_event_handler(plugin, event):
             handlers.append(self._get_event_handler(plugin, event))
         return handlers

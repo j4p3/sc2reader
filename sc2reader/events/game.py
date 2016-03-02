@@ -128,6 +128,60 @@ def create_command_event(frame, pid, data):
         return SelfAbilityEvent(frame, pid, data)
 
 
+class CommandUpdateTargetUnitEvent(GameEvent):
+    """
+    Command Update Target events share the target attributes of a `TargetAbilityEvent`, but lack the `ability`, `command flag`, and `other unit` attributes.
+
+    See :class:`GameEvent` and :class:`TargetAbilityEvent` for individual details.
+    """
+
+    name = 'CommandUpdateTargetUnitEvent'
+
+    def __init__(self, frame, pid, data):
+        super(CommandUpdateTargetUnitEvent, self).__init__(frame, pid)
+
+        self.target_data = data.get('target')
+
+        #: Flags set on the target unit. Available for TargetUnit type events
+        self.target_flags = self.target_data.get('target_unit_flags')
+
+        #: Timer??  Available for TargetUnit type events.
+        self.target_timer = self.target_data.get('timer')
+
+        #: Unique id of the target unit. Available for TargetUnit type events.
+        #: This id can be 0 when the target unit is shrouded by fog of war.
+        self.target_unit_id = self.target_data.get('tag')
+
+        #: A reference to the targetted unit. When the :attr:`target_unit_id` is
+        #: 0 this target unit is a generic, reused fog of war unit of the :attr:`target_unit_type`
+        #: with an id of zero. It should not be confused with a real unit.
+        self.target_unit = None
+
+        #: Current integer type id of the target unit. Available for TargetUnit type events.
+        self.target_unit_type = self.target_data.get('snapshot_unit_link')
+
+        #: Integer player id of the controlling player. Available for TargetUnit type events starting in 19595.
+        #: When the targetted unit is under fog of war this id is zero.
+        self.control_player_id = self.target_data.get('snapshot_control_player_id')
+
+        #: Integer player id of the player paying upkeep. Available for TargetUnit type events.
+        self.upkeep_player_id = self.target_data.get('snapshot_upkeep_player_id', None)
+
+        self.target_location_data = self.target_data.get('snapshot_point')
+
+        #: The x coordinate of the target. Available for TargetPoint and TargetUnit type events.
+        self.x = self.target_location_data.get('x', 0)/4096.0
+
+        #: The y coordinate of the target. Available for TargetPoint and TargetUnit type events.
+        self.y = self.target_location_data.get('y', 0)/4096.0
+
+        #: The z coordinate of the target. Available for TargetPoint and TargetUnit type events.
+        self.z = self.target_location_data.get('z', 0)
+
+        #: The location of the target. Available for TargetPoint and TargetUnit type events
+        self.location = (self.x, self.y, self.z)
+
+
 class PlayerActionEvent(GameEvent):
     name = 'PlayerActionEvent'
 

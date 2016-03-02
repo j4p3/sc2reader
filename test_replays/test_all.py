@@ -483,13 +483,14 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(replay.expansion, 'LotV')
 
     def test_command_event(self):
+        """
+        Find a CommandUpdateTargetUnitEvent in a replay known to have them.
+        """
+        
         replay = sc2reader.load_replay("test_replays/3.1.0/5.SC2Replay")
-        cmdfilter = lambda e: e.name
-        event_names = filter(cmdfilter, replay.events)
+        event_names = [ e.name for e in replay.events ]
 
         self.assertIn('CommandUpdateTargetUnitEvent', event_names, msg='CommandUpdateTargetUnitEvent not found.')
-        self.assertIn('CommandManagerStateEvent', event_names, msg='CommandManagerStateEvent not found.')
-        self.assertEqual(event_names.index('CommandUpdateTargetUnitEvent'), event_names.index('CommandManagerStateEvent') - 1)
         
           
 class TestGameEngine(unittest.TestCase):

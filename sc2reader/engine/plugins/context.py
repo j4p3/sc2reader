@@ -59,6 +59,9 @@ class ContextLoader(object):
             event.target = unit
             replay.objects[event.target_unit_id] = unit
 
+    def handleCommandUpdateTargetUnitEvent(self, event, replay):
+        self.handleTargetAbilityEvent(event, replay)
+
     def handleSelectionEvent(self, event, replay):
         if not replay.datapack:
             return

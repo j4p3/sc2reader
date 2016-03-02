@@ -330,6 +330,9 @@ class GameEventsReader_Base(object):
         byte_align = data.byte_align
         append = game_events.append
 
+        replay.debug = []
+        ifilter = lambda e: e.name == "TargetAbilityEvent"
+
         try:
             fstamp = 0
             event_start = 0
@@ -343,10 +346,26 @@ class GameEventsReader_Base(object):
                     event_data = event_parser(data)
                     if event_class is not None:
                         event = event_class(fstamp, pid, event_data)
+
+                        replay.debug.append({
+                            'fstamp': fstamp,
+                            'event_data': event_data,
+                            'event': event,
+                            'is_inject': ifilter(event),
+                            'is_unused': False,
+                            'bytes': data.read_range(event_start, tell())
+                        })
+
                         append(event)
                         if debug:
                             event.bytes = data.read_range(event_start, tell())
                     else:
+                        replay.debug.append({
+                            'fstamp': fstamp,
+                            'is_inject': False,
+                            'is_unused': True,
+                            'bytes': data.read_range(event_start, tell())
+                        })
                         pass  # Skipping unused events
 
                 # Otherwise throw a read error
@@ -1520,7 +1539,7 @@ class GameEventsReader_34784(GameEventsReader_27950):
             61: (None, self.trigger_hotkey_pressed_event),
             103: (None, self.command_manager_state_event),
             104: (None, self.command_update_target_point_event),
-            105: (None, self.command_update_target_unit_event),
+            105: (CommandUpdateTargetUnitEvent, self.command_update_target_unit_event),
             106: (None, self.trigger_anim_length_query_by_name_event),
             107: (None, self.trigger_anim_length_query_by_props_event),
             108: (None, self.trigger_anim_offset_event),

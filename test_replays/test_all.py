@@ -481,6 +481,15 @@ class TestReplays(unittest.TestCase):
     def test_dusk(self):
         replay = sc2reader.load_replay("test_replays/3.1.0/dusktowers.SC2Replay")
         self.assertEqual(replay.expansion, 'LotV')
+
+    def test_command_event(self):
+        replay = sc2reader.load_replay("test_replays/3.1.0/5.SC2Replay")
+        cmdfilter = lambda e: e.name
+        event_names = filter(cmdfilter, replay.events)
+
+        self.assertIn('CommandUpdateTargetUnitEvent', event_names, msg='CommandUpdateTargetUnitEvent not found.')
+        self.assertIn('CommandManagerStateEvent', event_names, msg='CommandManagerStateEvent not found.')
+        self.assertEqual(event_names.index('CommandUpdateTargetUnitEvent'), event_names.index('CommandManagerStateEvent') - 1)
         
           
 class TestGameEngine(unittest.TestCase):
